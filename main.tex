@@ -1,0 +1,209 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[table]{xcolor}
+\usepackage{mathpartir}
+\usepackage{stmaryrd}
+\usepackage{hhline} 
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue]{hyperref}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{algorithm}{Algorithm}
+
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+\newcommand{\xor}[0]{\textsf{xor}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\newcommand{\green}[1]{\textcolor{darkgreen}{#1}}
+\newcommand{\purple}[1]{\textcolor{purple}{#1}}
+
+\title{Automated Reasoning for Network Protocols with Cryptographic Components}
+\author{Rob Lorch}
+\date{Fall 2026} 
+
+% \renewcommand{\familydefault}{\sfdefault}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+
+    {\Large \textbf{Thesis Proposal} \par}
+    \vspace{0.5in}
+
+    {\LARGE \textbf{Automated Reasoning for Network Protocols with Cryptographic Components} \par}
+    \vspace{.75in}
+
+    {\large
+    Submitted by\par
+    \vspace{0.2in}
+    \textbf{Rob Lorch}\par
+    }
+    \vspace{0.55in}
+
+    {\large
+    In partial fulfillment of the requirements for the Doctor of Philosophy\par
+    Department of Computer Science\par
+    The University of Iowa\par
+    }
+    \vspace{0.75in}
+
+    {\large
+    Examining Committee:\par
+    \vspace{0.2in}
+    Dr. Katherine Kosaian\par
+    Dr. Garrett Morris\par
+    Dr. Sriram Pemmaraju\par 
+    Dr. Omar Chowdhury\par 
+    Dr. Cesare Tinelli\par
+    }
+    \vspace{1in}
+
+    {\large
+    November or December 2026\par
+    }
+
+    \vfill
+\end{titlepage}
+
+\section*{Abstract}
+
+\section{Introduction}
+
+
+
+\dots 
+
+The SMT revolution has had far-reaching consequences in general-purpose 
+software verification (eg Dafny), model checking (eg general-purpose model checkers), 
+and bug finding (symbolic execution). 
+However, its impact has been limited in the context of 
+cryptographic systems. 
+Reasoning rigorously about mathematical cryptography is traditionally outside the scope of 
+automated approaches (ofc there have been some successes like Cryptol); 
+reasoning wrt an abstraction has relied on things that SMT solvers are historically weak at (ADTs and quantifiers); 
+implementation-level reasoning in the fuzzing world has traditionally viewed constraint solving as too expensive 
+to assist in the generation of test cases.
+
+\subsection{Thesis statement.} 
+This thesis argues that SMT-based automated reasoning techniques can be 
+extended to advance the state of the art of 
+$(i)$ (semi-)automated cryptographic network protocol design-level verification and 
+$(ii)$ automated cryptographic network protocol implementation-level bug finding. 
+For $(i)$, intuitively we want to benefit from the general infrastructure built up especially for isolating 
+verification failures but enrich reasoning with domain-specific insights to ease automation.
+For $(ii)$, we want to develop new techniques that are expressive and efficient enough to be usable in practice, 
+and demonstrate their utility by finding real-world bugs.
+
+\subsection{Contributions}
+
+\noindent\textbf{Contribution 1.}
+
+\noindent\textbf{Contribution 2.}
+
+\noindent\textbf{Contribution 3.}
+
+\section{Background}
+Design vs implementation level.
+
+Symbolic vs computational model.
+
+Blackbox vs graybox vs whitebox fuzzing, 
+motivation for each, and generative vs mutation-based algos.
+
+\section {Contribution 1}
+Weaknesses of prior work
+\begin{itemize}
+  \item We want to reason about systems with cryptographic components. Historically, this has been split 
+  into reasoning about \emph{cryptographic protocols} and \emph{(cryptographically-abstracted) network protocols}. 
+  But in reality these things mix. Cite LTEInspector/5GReasoner.
+\end{itemize}
+
+\section {Contribution 2}
+Weaknesses of prior work
+\begin{itemize}
+  \item We would like to do everything in one model. But, the limiting factor is a classic one in automated reasoning, 
+  what to do in case of verification failure. 
+  \item Limitations of automation in Tamarin and ProVerif
+  \item Limitations of implementation-level tools and methodologies 
+\end{itemize}
+
+
+\section {Contribution 3}
+Weaknesses of prior work
+\begin{itemize}
+  \item This is great, but we are still missing some bugs. 
+  Lots of bugs only exhibit themselves at the implementation level; recall these type confusion attacks.
+  \item Basic challenges of fuzzing network protocols with cryptographic components, especially in black box. 
+  We focus on black box because in whitebox and graybox there are pretty well-established techniques 
+  (and it turns out we can still beat graybox fuzzers)
+  \item See Goblin paper for discussion of prior work like ISLa, Fandango, SyGuS engines, and so on.
+\end{itemize}
+
+\section{Summary of Completed \& Proposed Work}
+\begin{itemize}
+  \item Uptane (RAID '24)
+  \item Goblin (ICSE '26, S\&P '25)
+\end{itemize}
+
+\subsection{Proposed Work}
+Main goals
+\begin{itemize}
+  \item Paper on verification methodology based on deductive verification, 
+  largely motivated by Hop case study (S\&P 2027 submission)
+  \item Lemma synthesis paper with tool support inspired by results from previous bullet
+\end{itemize}
+Stretch goals 
+\begin{itemize}
+  \item End-to-end tool with input language, multiple reasoning engines, and 
+  multiple lemma synthesis engines.
+\end{itemize}
+
+\section{Timeline}
+reasonable and detailed; flexibility (perhaps flex time?); >= 2 months for dissertation writing; give time for comments and responding to feedback before official deadline for thesis submission; go backwards; Omar did 3 months for revisions
+Question: Was Omar's 3 months after the defense and before the final submission, or before the defense?
+\begin{itemize}
+  \item Now till June 2027: Work on lemma synthesis paper; revise S\&P '27 paper if rejected
+  \begin{itemize}
+    \item Lemma synthesis algorithm 
+    \item Tool support 
+    \item Evaluation
+    \item Paper writing
+  \end{itemize}
+  \item June 2027: Submit lemma synthesis paper to S\&P
+  \item July 8, 2027: Start writing thesis
+  \item Early September 2027: Completed draft of thesis for committee
+  \item Early October 2027: Thesis defense
+  \item December 2027: Thesis deposit due
+\end{itemize}
+
+\section{Notes}
+
+\begin{itemize}
+  \item At least 15 pages, not beyond 30 
+  
+  \item Introduction and thesis statement
+  \item Enough background to make concepts clear
+  \item Shortcomings of current work
+  \item Contributions of the thesis
+  \item Completed work
+  \item Proposed work
+  \item Timeline and plan of attack
+  \item Contingencies (plan B, C, etc.)
+  \item Think in terms of achievements, not papers
+  \item How I intend to go about the remaining work 
+  with \emph{some way to measure success}
+  \item First draft with full ambition
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{biblio}
+\end{document}
+
