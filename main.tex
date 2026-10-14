@@ -35,7 +35,7 @@
 \begin{titlepage}
     \centering
 
-    {\Large \textbf{Thesis Proposal} \par}
+    {\Large \textbf{Thesis Proposal Report} \par}
     \vspace{0.5in}
 
     {\LARGE \textbf{Automated Reasoning for Network Protocols with Cryptographic Components} \par}
@@ -56,18 +56,18 @@
     \vspace{0.75in}
 
     {\large
-    Examining Committee:\par
+    Thesis Committee:\par
     \vspace{0.2in}
+    Dr. Omar Chowdhury\par 
     Dr. Katherine Kosaian\par
     Dr. Garrett Morris\par
     Dr. Sriram Pemmaraju\par 
-    Dr. Omar Chowdhury\par 
     Dr. Cesare Tinelli\par
     }
     \vspace{1in}
 
     {\large
-    November or December 2026\par
+    November 2026\par
     }
 
     \vfill
@@ -75,11 +75,79 @@
 
 \section*{Abstract}
 
+Network protocols with cryptographic components are hard to prove correct. 
+Defining the notion of protocol correctness is itself nontrivial, 
+even before attempting a proof. 
+The general difficulty of the problem has resulted in flawed ``proofs" of correctness, 
+sometimes leading to real-world security impacts. 
+Even worse, security concerns are often eschewed in favor of financial considerations, 
+and so proofs are often not attempted in the first place.
+In an ideal situation, one would like to propose a security protocol design along with a security property, 
+and then have some automated tool either prove the protocol design correct with respect to the property 
+or return a concrete attack trace, all with minimal human interaction (we call this goal $G_0$). 
+Once the \emph{design} has been proven correct, we would also want to prove the \emph{implementation} correct. 
+However, even semi-automated techniques for implementation-level verification are currently 
+out of reach; instead, we aspire for automated techniques for discovering implementation-level bugs (we call this goal $G_1$). 
+In this thesis proposal, we describe a set of research contributions 
+leveraging SMT-based automated reasoning techniques in pursuit 
+of goals $G_0$ and $G_1$. 
+In particular, we discuss 
+$(1)$ a new cryptography-aware model-based protocol testing approach, 
+$(2)$ a new proof technique with tool support for cryptographic protocol verification, and 
+$(3)$ a new input generation algorithm for rigorous and automated implementation-level testing.
+We outline and evaluate these contributions, 
+discuss completed and proposed work, 
+and suggest a possible timeline to complete the remaining tasks.
+
 \section{Introduction}
 
 
 
-\dots 
+
+Security protocols are hard to get right. Examples abound of the discovery of inherent, 
+design-level issues in security protocols only \textit{after} said protocols were designed, implemented, 
+and in use \cite{lteinspector,5greasoner,ns_attack}. 
+In this document, we argue that approaches based on \emph{formal methods} can help address these issues 
+by aiding in the detection of security flaws at the project design level.
+An often-cited example is the infamous Needham-Schroeder mutual authentication protocol \cite{needham_schroeder}, 
+which we discuss in Section \ref{sec:sym-attacks}; its flaw was only discovered 17 years after the protocol 
+was proposed with the help of formal tools \cite{ns_attack}.
+Of course, there are also modern examples. A particularly relevant but tricky example 
+is the 4G LTE/5G protocol stack \cite{4g_lte,5g}. 
+The protocols are composed of various phases and layers, and they include the composition of cryptographic reasoning 
+with non-cryptographic reasoning (e.g., linear integer arithmetic). 
+Formal approaches to analyzing the 4G LTE and 5G protocol stacks have shown promise: 
+they have resulted in the discovery of numerous design-level flaws, 
+even when making the overly optimistic simplifying assumption that all cryptographic primitives 
+are perfectly secure \cite{lteinspector,5greasoner,dolev_yao}. 
+However, the state-of-the-art techniques \cite{lteinspector,5greasoner} still rely on manual interaction 
+that requires expertise in \emph{two} separate formalisms, potentially suggesting an area for future improvement.
+
+Late discovery of design-level problems has huge costs, financial and otherwise---it is estimated 
+that problems discovered earlier at the \textit{design stage} (rather than the \textit{implementation stage}) 
+of a software project
+generally cost 5-30 times \emph{less} to address \cite{fm}. 
+The current industry-standard method to detect software flaws is \textit{testing}. 
+However, testing has limitations: $(i)$ it relies on the existence of a concrete implementation, 
+$(ii)$ it can only prove the presence of bugs and never their absence, 
+and $(iii)$ designing test cases that account for the wide range of possible adversarial influence is difficult. 
+% {\begin{itemize}
+%     \item Give motivation for reasoning about cryptography; Needham-Schroeder protocol
+%     \item From Omar -- look at LTEInspector/5GReasoner work for motivation; real-world protocols have cryptographic components; one can forget about crypto but get spurious counterexamples; otherwise one has to integrate cryptographic reasoning. Even in cases where primitives are assumed secure there are real-world attacks. There are current approaches, model-based testing and abstraction/refinement to find these attacks. But they have downsides. But we need to take a step back and build a story based on details.
+% \end{itemize}}
+Therefore, to facilitate early detection of design flaws, we are interested in the formal verification of 
+\textit{security protocols} with respect to \textit{security properties}, 
+even under the influence of an \textit{adversary}, 
+dubbed the \textit{security protocol verification problem} 
+(where the notions of \textit{security protocol}, \textit{security property}, and \textit{adversary} will be elaborated later). 
+We are particularly interested in \emph{(semi-)automated approaches} to addressing the 
+security protocol verification problem, keeping in mind two core accompanying concerns,
+\emph{expressivity} and \emph{tractability}:
+approaches must be \emph{expressive enough} to model modern protocol features such as cryptographic primitives with 
+algebraic properties (e.g. exclusive or), arithmetic constraints, and non-trivial control flow, 
+while still remaining \emph{tractable enough} to produce proofs or counterexamples with minimal human interaction. 
+
+\dots  
 
 The SMT revolution has had far-reaching consequences in general-purpose 
 software verification (eg Dafny), model checking (eg general-purpose model checkers), 
@@ -92,25 +160,11 @@ reasoning wrt an abstraction has relied on things that SMT solvers are historica
 implementation-level reasoning in the fuzzing world has traditionally viewed constraint solving as too expensive 
 to assist in the generation of test cases.
 
-\subsection{Thesis statement.} 
-This thesis argues that SMT-based automated reasoning techniques can be 
-extended to advance the state of the art of 
-$(i)$ (semi-)automated cryptographic network protocol design-level verification and 
-$(ii)$ automated cryptographic network protocol implementation-level bug finding. 
-For $(i)$, intuitively we want to benefit from the general infrastructure built up especially for isolating 
-verification failures but enrich reasoning with domain-specific insights to ease automation.
-For $(ii)$, we want to develop new techniques that are expressive and efficient enough to be usable in practice, 
-and demonstrate their utility by finding real-world bugs.
-
-\subsection{Contributions}
-
-\noindent\textbf{Contribution 1.}
-
-\noindent\textbf{Contribution 2.}
-
-\noindent\textbf{Contribution 3.}
+\textbf{Roadmap.} Roadmap here.
 
 \section{Background}
+Network protocol, security protocolf
+
 Design vs implementation level.
 
 Symbolic vs computational model.
@@ -118,9 +172,68 @@ Symbolic vs computational model.
 Blackbox vs graybox vs whitebox fuzzing, 
 motivation for each, and generative vs mutation-based algos.
 
+
+\section{Thesis Statement \& Contributions} 
+\emph{This thesis leverages SMT-based automated reasoning techniques to advance
+the state of the art in the analysis of network protocols with cryptographic 
+components.} We focus on two key goals. 
+
+\noindent\textbf{Goal $G_0$.}
+We are interested in \emph{semi-automated}, \emph{design-level verification}
+of these protocols.
+
+
+\noindent\textbf{Goal $G_1$.}
+We are interested in \emph{fully automated}, \emph{implementation-level bug finding}. 
+
+To address these two key goals, we propose three research contributions.
+
+\noindent\textbf{Contribution $1$.} 
+To address $G_0$, we develop a cryptography-aware model-based testing approach 
+that offers higher degrees of automation and expressivity compared to prior work. 
+We apply this approach to the Uptane \cite{} over-the-air update protocol, exhibiting X 
+previously unknown design-level security vulnerabilities. 
+
+\noindent\textbf{Contribution $2$.}
+To further address $G_0$, 
+we note a fundamental weakness of the model-based testing approach presented in Contribution $1$: 
+it requires two separate formal models, 
+one in a general-purpose model checker and one in a dedicated cryptographic 
+protocol verifier (CPV). 
+Further, we note a fundamental weakness of prior CPVs: 
+the proofs from the standard CPVs \cite{tamarin,proverif} are inherently 
+monolithic, and hence verification failures are opaque and thus difficult for users to address. 
+Aside from these standard approaches, 
+there also exist compositional techniques that offer more information in the case of verification failure 
+\cite{dystar}, but their proof methodologies offer little automation. 
+To address these weaknesses, we present a new cryptographic protocol verification approach 
+based on deductive verification that only requires a single formal model, 
+and additionally advances prior compositional proof techniques to increase automation potential
+(compared to existing CPVs).
+We demonstrate the utility of this approach by presenting proofs 
+of Y $\langle$protocol, property$\rangle$ pairs with higher levels of automation than were possible in prior work. 
+
+\noindent\textbf{Contribution $3$.}
+Despite the advances of Contributions $1$ and $2$, we note that there are certain classes of 
+bugs that are impossible to address with these approaches---namely, bugs that only exist 
+in concrete protocol implementations, and not at the protocol design phase. 
+Therefore, to address $G_1$, we generally resort to implementation-level fuzz testing. 
+Prior works on fuzzing these protocols have shown promise with finding vulnerabilities in practice, 
+but they suffer from fundamental weaknesses in $(a)$ requiring access to the system under tests's (SUT's)
+source code or binary, and in $(b)$ often failing to produce inputs that drive deep enough 
+into the application's logic to reliably trigger bugs.
+To address these weaknesses, we develop an SMT-based input generation approach 
+to fully automatically generate test cases that conform to an input specification 
+phrased as a context-sensitive grammar.
+We demonstrate the utility of the approach by measuring the efficiency of the input generation 
+algorithm and the quality of the generated inputs. 
+We additionally demonstrate Z bugs on the WiFi SAE handshake protocol that were 
+discovered by our approach and out of reach by prior approaches \cite{saecred}.
+
 \section {Contribution 1}
 Weaknesses of prior work
 \begin{itemize}
+  \item Borrow from Uptane paper. Recreate fig of lazy approach. Also endless attack chaining is it possible?
   \item We want to reason about systems with cryptographic components. Historically, this has been split 
   into reasoning about \emph{cryptographic protocols} and \emph{(cryptographically-abstracted) network protocols}. 
   But in reality these things mix. Cite LTEInspector/5GReasoner.
@@ -129,10 +242,15 @@ Weaknesses of prior work
 \section {Contribution 2}
 Weaknesses of prior work
 \begin{itemize}
-  \item We would like to do everything in one model. But, the limiting factor is a classic one in automated reasoning, 
-  what to do in case of verification failure. 
-  \item Limitations of automation in Tamarin and ProVerif
-  \item Limitations of implementation-level tools and methodologies 
+    \item 
+  Following up on Uptane work,
+  we would like to do everything in one model, and what if the threat model cannot be adequately 
+  summarized by the proposed standard/replay/bounded replay/no attackers?
+  \item See SP submission challenges of ProVerif and Tamarin, and also challenges of invariant-based 
+  approaches with Figure. Maybe also figure of Tamarin proof in progress.
+
+  And compression theorem is protocol-specific
+  \item Maybe use big CPV table from SP submission
 \end{itemize}
 
 
@@ -141,29 +259,35 @@ Weaknesses of prior work
 \begin{itemize}
   \item This is great, but we are still missing some bugs. 
   Lots of bugs only exhibit themselves at the implementation level; recall these type confusion attacks.
+  \item See ICSE '26 and perhaps the slides for summary and diff with prior work (perhaps that table). 
+  Fandango has problems with non-monotonic constraints; ISLa is a string solver and does not leverage 
+  incrementality of SMT solvers. Perhaps give bogus ISLa semantics rule quantifying over integers 
+  as an example. 
+  \item Also look into QuickCheck \& Co, and SyGuS engines, CLP, and so on.
   \item Basic challenges of fuzzing network protocols with cryptographic components, especially in black box. 
   We focus on black box because in whitebox and graybox there are pretty well-established techniques 
   (and it turns out we can still beat graybox fuzzers)
-  \item See Goblin paper for discussion of prior work like ISLa, Fandango, SyGuS engines, and so on.
 \end{itemize}
 
-\section{Summary of Completed \& Proposed Work}
+
+\section{Completed \& Proposed Work}
+\subsection{Completed Work}
 \begin{itemize}
-  \item Uptane (RAID '24)
-  \item Goblin (ICSE '26, S\&P '25)
+  \item Uptane (RAID '24), number of vulnerabilities
+  \item Goblin (ICSE '26, S\&P '25), number of vulnerabilities
+  \item Medjed submission (S\&P '27), results overview 
 \end{itemize}
 
 \subsection{Proposed Work}
-Main goals
+
+Goals (have not distinguished between main and stretch yet)
 \begin{itemize}
-  \item Paper on verification methodology based on deductive verification, 
-  largely motivated by Hop case study (S\&P 2027 submission)
-  \item Lemma synthesis paper with tool support inspired by results from previous bullet
-\end{itemize}
-Stretch goals 
-\begin{itemize}
-  \item End-to-end tool with input language, multiple reasoning engines, and 
-  multiple lemma synthesis engines.
+  \item Proper input language (give examples where Medjed language is not really desirable)
+  \item Multiple reasoning engines (Kind 2, Tamarin for cex to induction, compilation to Tamarin)
+  \item Find counterexamples 
+  \item Dedicated neuro-symbolic reasoning 
+  \item Broader eval on benchmarks 
+  \item More novel protocol analysis problems
 \end{itemize}
 
 \section{Timeline}
